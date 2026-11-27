@@ -122,33 +122,52 @@ func TestLogsTemplate(t *testing.T) {
 }
 
 func TestRenderNav(t *testing.T) {
+	tmpl, err := template.ParseFS(templateFS, "templates/base.html")
+	if err != nil {
+		t.Fatalf("ParseFS: %v", err)
+	}
 	testCases := []struct {
 		name    string
-		page    string
 		section string
+		want    string
 	}{
-		{name: "list", page: "list", section: "tests"},
-		{name: "secret_list", page: "secret_list", section: "secrets"},
-		{name: "secret_create", page: "secret_create", section: "secrets"},
+		{
+			name:    "tests",
+			section: "tests",
+			want: `<nav>
+      <a href="/" class="nav-link active">Reliability Tests</a>
+      <a href="/clusters" class="nav-link">Clusters</a>
+      <a href="/secrets" class="nav-link">Auth Secrets</a>
+    </nav>`,
+		},
+		{
+			name:    "clusters",
+			section: "clusters",
+			want: `<nav>
+      <a href="/" class="nav-link">Reliability Tests</a>
+      <a href="/clusters" class="nav-link active">Clusters</a>
+      <a href="/secrets" class="nav-link">Auth Secrets</a>
+    </nav>`,
+		},
+		{
+			name:    "secrets",
+			section: "secrets",
+			want: `<nav>
+      <a href="/" class="nav-link">Reliability Tests</a>
+      <a href="/clusters" class="nav-link">Clusters</a>
+      <a href="/secrets" class="nav-link active">Auth Secrets</a>
+    </nav>`,
+		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			tmpl, err := template.ParseFS(templateFS, "templates/base.html", "templates/"+tc.page+".html")
-			if err != nil {
-				t.Fatalf("ParseFS: %v", err)
-			}
 			var buf bytes.Buffer
-			data := pageData{Section: tc.section, Namespace: "test-harness"}
-			if err := tmpl.ExecuteTemplate(&buf, "base", data); err != nil {
+			if err := tmpl.ExecuteTemplate(&buf, "nav", pageData{Section: tc.section}); err != nil {
 				t.Fatalf("ExecuteTemplate: %v", err)
 			}
-			out := buf.String()
-			if !strings.Contains(out, "Auth Secrets") {
-				t.Fatalf("missing Auth Secrets link in nav:\n%s", out)
-			}
-			if !strings.Contains(out, "Reliability Tests") {
-				t.Fatalf("missing Reliability Tests link in nav:\n%s", out)
+			if diff := cmp.Diff(tc.want, buf.String()); diff != "" {
+				t.Fatalf("nav mismatch (-want +got):\n%s", diff)
 			}
 		})
 	}

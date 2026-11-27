@@ -1,3 +1,8 @@
+{{define "nav"}}<nav>
+      <a href="/" class="nav-link{{if eq .Section `tests`}} active{{end}}">Reliability Tests</a>
+      <a href="/clusters" class="nav-link{{if eq .Section `clusters`}} active{{end}}">Clusters</a>
+      <a href="/secrets" class="nav-link{{if eq .Section `secrets`}} active{{end}}">Auth Secrets</a>
+    </nav>{{end}}
 {{define "base"}}
 <!DOCTYPE html>
 <html lang="en">
@@ -44,9 +49,9 @@
     th, td { text-align: left; padding: 0.65rem 0.85rem; border-bottom: 1px solid var(--border); font-size: 0.95rem; }
     th { color: var(--muted); font-weight: 500; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; }
     .phase { font-family: ui-monospace, monospace; font-size: 0.85rem; }
-    .phase.Running, .phase.Succeeded { color: var(--ok); }
-    .phase.Failed { color: var(--danger); }
-    .phase.Pending { color: var(--muted); }
+    .phase.Running, .phase.Succeeded, .phase.Ready { color: var(--ok); }
+    .phase.Failed, .phase.DeleteFailed { color: var(--danger); }
+    .phase.Pending, .phase.Provisioning, .phase.Deleting { color: var(--muted); }
     .card {
       background: var(--surface);
       border: 1px solid var(--border);
@@ -137,10 +142,7 @@
 <body>
   <header>
     <div class="brand">Test Harness</div>
-    <nav>
-      <a href="/" class="nav-link{{if eq .Section `tests`}} active{{end}}">Reliability Tests</a>
-      <a href="/secrets" class="nav-link{{if eq .Section `secrets`}} active{{end}}">Auth Secrets</a>
-    </nav>
+    {{template "nav" .}}
   </header>
   <main>
     {{template "content" .}}

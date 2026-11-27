@@ -1,0 +1,44 @@
+{{define "title"}}New Cluster{{end}}
+{{define "content"}}
+<h1>{{if .SelectedTemplate}}New cluster from {{.SelectedTemplate}}{{else}}New cluster{{end}}</h1>
+{{if .Error}}<p class="error">{{.Error}}</p>{{end}}
+{{if .SelectedTemplate}}
+<p class="muted">The installer image, credentials, and install-config below were copied from template <a href="/clusters/templates/{{.SelectedTemplate}}">{{.SelectedTemplate}}</a>. Set the cluster name and submit. Edit any field before you submit. The Cluster will not stay linked to the template.</p>
+{{else}}
+<p class="muted">Fill in the installer image, credentials, and install-config yourself. To start from a saved template, pick one below or open <a href="/clusters/templates">Templates</a>.</p>
+{{end}}
+<form class="stack" method="post" action="/clusters">
+  <label for="template">Start from a template</label>
+  <select id="template" name="template" onchange="if (this.value) location.href='/clusters/new?template='+encodeURIComponent(this.value)">
+    <option value="">None</option>
+    {{range .Templates}}
+    <option value="{{.Name}}"{{if eq $.SelectedTemplate .Name}} selected{{end}}>{{.Name}}</option>
+    {{end}}
+  </select>
+  <p class="muted"><a href="/clusters/templates/new">Save a new template</a> instead of creating a cluster now.</p>
+
+  <label for="name">Name *</label>
+  <input id="name" name="name" required pattern="[a-z0-9]([-a-z0-9]*[a-z0-9])?" placeholder="ci-aws-smoke">
+
+  <label for="installerImage">Installer image *</label>
+  <input id="installerImage" name="installerImage" required value="{{.InstallerImage}}" placeholder="quay.io/openshift-release-dev/ocp-release:4.19.0-x86_64">
+
+  <label for="credentialsSecret">Cloud credentials *</label>
+  <select id="credentialsSecret" name="credentialsSecret" required>
+    {{range .CloudSecrets}}
+    <option value="{{.Name}}"{{if eq $.CredentialsSecret .Name}} selected{{end}}>{{.Name}}</option>
+    {{else}}
+    <option value="" disabled selected>No cloud credentials</option>
+    {{end}}
+  </select>
+  <p class="muted"><a href="/clusters/credentials/new">Add cloud credentials</a></p>
+
+  <label for="installConfig">install-config *</label>
+  <textarea id="installConfig" name="installConfig" required rows="18">{{.InstallConfigYAML}}</textarea>
+
+  <div class="toolbar" style="margin-top:1.25rem">
+    <button class="btn primary" type="submit">Create cluster</button>
+    <a class="btn" href="/clusters">Cancel</a>
+  </div>
+</form>
+{{end}}

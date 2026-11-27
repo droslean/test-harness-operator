@@ -1,0 +1,37 @@
+{{define "title"}}Clusters{{end}}
+{{define "content"}}
+<h1>Clusters</h1>
+<div class="toolbar">
+  <a class="btn primary" href="/clusters/new">New cluster</a>
+  <a class="btn" href="/clusters/templates">Templates</a>
+  <a class="btn" href="/clusters/credentials/new">New cloud credentials</a>
+</div>
+<p class="muted">A cluster is created from a template, or by typing the installer image, credentials, and install-config yourself. Either way the result is a Cluster, and the operator installs it.</p>
+{{if .Error}}<p class="error">{{.Error}}</p>{{end}}
+{{if .Clusters}}
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Phase</th>
+      <th>Credentials</th>
+      <th>Installer</th>
+      <th>Age</th>
+    </tr>
+  </thead>
+  <tbody>
+  {{range .Clusters}}
+    <tr>
+      <td><a href="/clusters/{{.Name}}">{{.Name}}</a></td>
+      <td><span class="phase {{.Phase}}">{{if .Phase}}{{.Phase}}{{else}}Pending{{end}}</span></td>
+      <td>{{.Credentials}}</td>
+      <td>{{.Installer}}</td>
+      <td>{{.Age}}</td>
+    </tr>
+  {{end}}
+  </tbody>
+</table>
+{{else}}
+<p class="muted">No Clusters in namespace {{.Namespace}}.</p>
+{{end}}
+{{end}}
