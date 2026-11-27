@@ -1,0 +1,28 @@
+{{define "title"}}{{.Template.Name}}{{end}}
+{{define "content"}}
+<div class="toolbar">
+  <a href="/clusters/templates">← Templates</a>
+</div>
+<h1>{{.Template.Name}}</h1>
+{{if .Error}}<p class="error">{{.Error}}</p>{{end}}
+
+<div class="card">
+  <h2>Template</h2>
+  <dl>
+    <dt>Installer</dt><dd>{{.Template.Installer}}</dd>
+    <dt>Credentials</dt><dd>{{.Template.Credentials}}</dd>
+  </dl>
+  <div class="toolbar" style="margin-top:1rem">
+    <a class="btn primary" href="/clusters/new?template={{.Template.Name}}">Create cluster from this template</a>
+  </div>
+</div>
+
+<div class="card">
+  <h2>install-config</h2>
+  <pre class="logs">{{.Template.InstallConfig}}</pre>
+</div>
+
+<form method="post" action="/clusters/templates/{{.Template.Name}}/delete" onsubmit="return confirm('Delete this template? Clusters already created from it stay as they are.')">
+  <button class="btn danger" type="submit">Delete template</button>
+</form>
+{{end}}

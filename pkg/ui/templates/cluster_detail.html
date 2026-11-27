@@ -1,0 +1,28 @@
+{{define "title"}}{{.Cluster.Name}}{{end}}
+{{define "content"}}
+<div class="toolbar">
+  <a href="/clusters">← Clusters</a>
+</div>
+<h1>{{.Cluster.Name}}</h1>
+{{if .Error}}<p class="error">{{.Error}}</p>{{end}}
+
+<div class="card">
+  <h2>Cluster</h2>
+  <dl>
+    <dt>Phase</dt><dd><span class="phase {{.Cluster.Phase}}">{{if .Cluster.Phase}}{{.Cluster.Phase}}{{else}}Pending{{end}}</span></dd>
+    <dt>Message</dt><dd>{{.Cluster.Message}}</dd>
+    <dt>Installer</dt><dd>{{.Cluster.Installer}}</dd>
+    <dt>Credentials</dt><dd>{{.Cluster.Credentials}}</dd>
+    <dt>Created</dt><dd>{{.Cluster.Created}}</dd>
+  </dl>
+</div>
+
+<div class="card">
+  <h2>install-config</h2>
+  <pre class="logs">{{.Cluster.InstallConfig}}</pre>
+</div>
+
+<form method="post" action="/clusters/{{.Cluster.Name}}/delete" onsubmit="return confirm('Delete this cluster? The operator will run openshift-install destroy cluster.')">
+  <button class="btn danger" type="submit">Delete cluster</button>
+</form>
+{{end}}

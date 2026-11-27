@@ -1,0 +1,35 @@
+{{define "title"}}Cluster Templates{{end}}
+{{define "content"}}
+<h1>Cluster Templates</h1>
+<div class="toolbar">
+  <a class="btn primary" href="/clusters/templates/new">New template</a>
+  <a class="btn" href="/clusters/new">New cluster from details</a>
+  <a class="btn" href="/clusters">Clusters</a>
+</div>
+<p class="muted">A template stores an installer image, a cloud credentials Secret, and an install-config. Creating a cluster from it copies those fields. The cluster does not stay linked to the template.</p>
+{{if .Error}}<p class="error">{{.Error}}</p>{{end}}
+{{if .Templates}}
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Credentials</th>
+      <th>Installer</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+  {{range .Templates}}
+    <tr>
+      <td><a href="/clusters/templates/{{.Name}}">{{.Name}}</a></td>
+      <td>{{.Credentials}}</td>
+      <td>{{.Installer}}</td>
+      <td><a href="/clusters/new?template={{.Name}}">Create cluster</a></td>
+    </tr>
+  {{end}}
+  </tbody>
+</table>
+{{else}}
+<p class="muted">No templates in namespace {{.Namespace}}. Create one, then use it to create a cluster.</p>
+{{end}}
+{{end}}

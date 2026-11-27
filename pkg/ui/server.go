@@ -52,7 +52,7 @@ func New(cfg *rest.Config, c client.WithWatch, namespace string) (*Server, error
 		namespace: namespace,
 		pages:     map[string]*template.Template{},
 	}
-	for _, name := range []string{"list", "create", "detail", "logs", "secret_list", "secret_create"} {
+	for _, name := range []string{"list", "create", "detail", "logs", "secret_list", "secret_create", "cluster_list", "cluster_create", "cluster_detail", "cloud_secret_create", "template_list", "template_create", "template_detail"} {
 		t, err := template.ParseFS(templateFS, "templates/base.html", "templates/"+name+".html")
 		if err != nil {
 			return nil, fmt.Errorf("parse %s templates: %w", name, err)
@@ -80,6 +80,14 @@ func (s *Server) Handler() http.Handler {
 			http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
 		}
 	})
+	mux.HandleFunc("/clusters/credentials/new", s.handleCloudSecretCreateForm)
+	mux.HandleFunc("/clusters/credentials", s.handleCloudSecrets)
+	mux.HandleFunc("/clusters/templates/new", s.handleTemplateCreateForm)
+	mux.HandleFunc("/clusters/templates", s.handleTemplates)
+	mux.HandleFunc("/clusters/templates/", s.handleTemplatePath)
+	mux.HandleFunc("/clusters/new", s.handleClusterCreateForm)
+	mux.HandleFunc("/clusters", s.handleClusters)
+	mux.HandleFunc("/clusters/", s.handleClusterPath)
 	mux.HandleFunc("/api/tests", s.handleAPITests)
 	mux.HandleFunc("/api/tests/", s.handleAPITest)
 	mux.HandleFunc("/watch/tests", s.handleWatchTests)
@@ -105,17 +113,27 @@ func (s *Server) Start(ctx context.Context, addr string) error {
 }
 
 type pageData struct {
-	Section     string
-	Namespace   string
-	Error       string
-	Tests       []testRow
-	SecretRows  []secretRow
-	AuthSecrets []corev1.Secret
-	Test        *testDetail
-	Pod         *podDetail
-	ExpectedPod string
-	TestName    string
-	PodName     string
+	Section           string
+	Namespace         string
+	Error             string
+	Tests             []testRow
+	SecretRows        []secretRow
+	AuthSecrets       []corev1.Secret
+	Test              *testDetail
+	Pod               *podDetail
+	ExpectedPod       string
+	TestName          string
+	PodName           string
+	Clusters          []clusterRow
+	Cluster           *clusterDetail
+	Templates         []templateOption
+	CloudSecrets      []corev1.Secret
+	SelectedTemplate  string
+	InstallerImage    string
+	CredentialsSecret string
+	InstallConfigYAML string
+	CloudPlatform     string
+	Template          *templateDetail
 }
 
 type testRow struct {
